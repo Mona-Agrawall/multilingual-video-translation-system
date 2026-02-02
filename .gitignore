@@ -1,0 +1,22 @@
+# Audio / Video
+*.wav
+*.mp3
+*.mp4
+
+# Generated folders
+extracted_audio/
+generated_audio/
+output_videos/
+transcripts/
+translated_text/
+
+# Inputs (keep folder, not files)
+input_videos/*.mp4
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+Thumbs.db
+.DS_Store
