@@ -19,3 +19,5 @@ AI-based system that translates spoken content in a video into another language 
 1. Place the input video inside `input_videos/`
 2. Run `main.py`
 3. The translated video will be saved in `output_videos/`
+
+## Thank you!
