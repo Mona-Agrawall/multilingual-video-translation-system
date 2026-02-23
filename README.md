@@ -2,7 +2,7 @@
 
 An AI-powered system that translates spoken content in a video into another language while maintaining accurate audio-video synchronization.
 
-Video → Audio → Text → Translate → Speech → Synced Video
+`Video → Audio → Text → Translate → Speech → Synced Video`
 
 ## Features
 - Upload MP4 video via Streamlit UI
@@ -23,7 +23,7 @@ Video → Audio → Text → Translate → Speech → Synced Video
 6. Merge translated audio with video
 
 Final output is saved inside:
-output_videos/
+`output_videos/`
 
 ## Tech Stack
 - Python
@@ -36,17 +36,16 @@ output_videos/
 
 ## How to Run
 1. Install Dependencies
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 2. Install FFmpeg
 Download and add FFmpeg to system PATH.
-
-Verify:
-ffmpeg -version
+   Verify:
+  `ffmpeg -version`
 
 3. Run Application
-streamlit run app.py
-Open in browser:
+`streamlit run app.py`
 
+Open in browser:
 http://localhost:8501
 
 ## Use Cases
