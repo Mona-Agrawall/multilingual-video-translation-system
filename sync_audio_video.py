@@ -5,7 +5,10 @@ import uuid
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-VIDEO_INPUT = sys.argv[1]   # pass original video path
+if len(sys.argv) < 2:
+    raise ValueError("Video path not provided.")
+
+VIDEO_INPUT = sys.argv[1]
 AUDIO_INPUT = os.path.join(BASE_DIR, "generated_audio", "translated.wav")
 
 unique_id = str(uuid.uuid4())
@@ -17,7 +20,7 @@ if not os.path.exists(VIDEO_INPUT):
     raise FileNotFoundError("Input video not found.")
 
 if not os.path.exists(AUDIO_INPUT):
-    raise FileNotFoundError("Translated audio not found.")
+    raise FileNotFoundError("Generated audio not found.")
 
 command = [
     "ffmpeg",
@@ -28,7 +31,6 @@ command = [
     "-map", "1:a:0",
     "-c:v", "copy",
     "-c:a", "aac",
-    "-shortest",
     VIDEO_OUTPUT
 ]
 
