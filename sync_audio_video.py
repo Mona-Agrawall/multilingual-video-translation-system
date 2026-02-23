@@ -1,11 +1,15 @@
 import os
 import subprocess
+import sys
+import uuid
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-VIDEO_INPUT = os.path.join(BASE_DIR, "input_videos", "input.mp4")
+VIDEO_INPUT = sys.argv[1]   # pass original video path
 AUDIO_INPUT = os.path.join(BASE_DIR, "generated_audio", "translated.wav")
-VIDEO_OUTPUT = os.path.join(BASE_DIR, "output_videos", "output_translated.mp4")
+
+unique_id = str(uuid.uuid4())
+VIDEO_OUTPUT = os.path.join(BASE_DIR, "output_videos", f"{unique_id}_translated.mp4")
 
 os.makedirs(os.path.join(BASE_DIR, "output_videos"), exist_ok=True)
 
@@ -30,4 +34,4 @@ command = [
 
 subprocess.run(command, check=True)
 
-print("Final translated video created successfully with audio.")
+print(VIDEO_OUTPUT)
