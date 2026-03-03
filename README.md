@@ -53,6 +53,12 @@ http://localhost:8501
 - Multilingual content creation
 - Educational translation
 - Speech dubbing
+## Screenshots Of The Project
+
+<img width="1917" height="1197" alt="Screenshot 2026-03-03 145416" src="https://github.com/user-attachments/assets/17c3e83b-483e-4687-bce3-364ebb411eee" />
+<img width="1919" height="1199" alt="Screenshot 2026-03-03 145425" src="https://github.com/user-attachments/assets/2fef2169-78ae-4553-a776-a3ce2c868793" />
+<img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/55393dbd-0659-497c-b412-88fcc93fd63c" />
+
 
 ## Author
 Mona Agrawal
