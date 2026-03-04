@@ -28,11 +28,12 @@
 
 <div align="center">
 
-<img width="1917" alt="Upload Screen" src="https://github.com/user-attachments/assets/17c3e83b-483e-4687-bce3-364ebb411eee" style="border-radius:10px; margin-bottom:12px;" />
-
-<img width="1919" alt="Processing Screen" src="https://github.com/user-attachments/assets/2fef2169-78ae-4553-a776-a3ce2c868793" style="border-radius:10px; margin-bottom:12px;" />
-
-<img width="1919" alt="Output Screen" src="https://github.com/user-attachments/assets/55393dbd-0659-497c-b412-88fcc93fd63c" style="border-radius:10px;" />
+  
+<img width="1053" height="1191" alt="image" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" style="border-radius:10px; margin-bottom:12px;" />
+<br>
+<img width="898" height="1199" alt="image" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c"  style="border-radius:10px; margin-bottom:12px;"/>
+<br>
+<img width="939" height="1199" alt="image" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" style="border-radius:10px;"/>
 
 </div>
 
