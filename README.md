@@ -22,20 +22,6 @@
 
 </div>
 
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-  
-<img width="1053" height="1191" alt="image" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" style="border-radius:10px; margin-bottom:12px;" />
-<br>
-<img width="898" height="1199" alt="image" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c"  style="border-radius:10px; margin-bottom:12px;"/>
-<br>
-<img width="939" height="1199" alt="image" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" style="border-radius:10px;"/>
-
-</div>
 
 ---
 
@@ -188,6 +174,22 @@ git push origin feature/your-feature-name
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-mona--agrawal-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/mona-agrawal-/)
 
 </div>
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+  
+<img width="1053" height="1191" alt="image" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" style="border-radius:10px; margin-bottom:12px;" />
+<br>
+<img width="898" height="1199" alt="image" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c"  style="border-radius:10px; margin-bottom:12px;"/>
+<br>
+<img width="939" height="1199" alt="image" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" style="border-radius:10px;"/>
+
+</div>
+
 
 ---
 
