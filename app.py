@@ -495,7 +495,7 @@ if st.session_state.uploaded:
         if st.button("Extract Audio Track"):
             with st.spinner("Extracting audio with FFmpeg..."):
                 subprocess.run(
-                    ["python3", "extract_audio.py", st.session_state.video_path],
+                    ["python", "extract_audio.py", st.session_state.video_path],
                     check=True
                 )
             st.session_state.audio_done = True
@@ -528,7 +528,7 @@ if st.session_state.audio_done:
     if not st.session_state.transcript_done:
         if st.button("Generate Transcript"):
             with st.spinner("Transcribing with Whisper — this may take a moment..."):
-                subprocess.run(["python3", "speech_to_text.py"], check=True)
+                subprocess.run(["python", "speech_to_text.py"], check=True)
             st.session_state.transcript_done = True
             st.rerun()
 
@@ -571,7 +571,7 @@ if st.session_state.transcript_done:
         if st.button("Translate Text"):
             with st.spinner("Translating..."):
                 subprocess.run(
-                    ["python3", "translate_text.py", language_dict[selected_lang]],
+                    ["python", "translate_text.py", language_dict[selected_lang]],
                     check=True
                 )
             st.session_state.language = language_dict[selected_lang]
@@ -607,7 +607,7 @@ if st.session_state.translated_done:
         if st.button("Generate Audio"):
             with st.spinner("Synthesizing speech and syncing duration..."):
                 subprocess.run(
-                    ["python3", "text_to_speech.py", st.session_state.language],
+                    ["python", "text_to_speech.py", st.session_state.language],
                     check=True
                 )
             st.session_state.speech_done = True
@@ -641,7 +641,7 @@ if st.session_state.speech_done:
         if st.button("Merge Audio into Video"):
             with st.spinner("Merging translated audio with video..."):
                 result = subprocess.run(
-                    ["python3", "sync_audio_video.py", st.session_state.video_path],
+                    ["python", "sync_audio_video.py", st.session_state.video_path],
                     capture_output=True,
                     text=True,
                     check=True
