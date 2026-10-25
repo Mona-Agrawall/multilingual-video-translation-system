@@ -1,8 +1,4 @@
 streamlit
 openai-whisper
-gtts
-pydub
 deep-translator
-ffmpeg-python
-torch
-numpy
+gTTS

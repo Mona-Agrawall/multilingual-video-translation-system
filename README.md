@@ -55,7 +55,7 @@ The pipeline works in 6 automated stages:
 | 🔊 **Text-to-Speech** | Natural audio generation from translated text using gTTS |
 | ⏱️ **Audio-Video Sync** | FFmpeg time-stretching ensures translated audio matches original timing |
 | 🖥️ **Simple Web UI** | Clean Streamlit interface — upload, translate, download |
-| 📁 **Auto Output** | Translated video saved automatically to `output_videos/` |
+| 📁 **Auto Output** | Each upload gets its own folder in `workspace/` with every intermediate file and the final video |
 
 ---
 
@@ -67,8 +67,8 @@ UI          : Streamlit
 Transcription : OpenAI Whisper
 Translation : Google Translate API
 TTS         : gTTS (Google Text-to-Speech)
-Audio/Video : FFmpeg, Pydub
-Output      : MP4 (output_videos/)
+Audio/Video : FFmpeg
+Output      : MP4 (workspace/)
 ```
 
 ---
@@ -118,10 +118,24 @@ http://localhost:8501
 ```
 multilingual-video-translation-system/
 │
-├── app.py                  # Streamlit UI and main app logic
-├── requirements.txt        # Python dependencies
-├── output_videos/          # Translated video output (auto-created)
-└── README.md               # Project documentation
+├── app.py                      # Streamlit entry point: page layout and step-by-step flow
+│
+├── pipeline/                   # The translation pipeline, one module per step
+│   ├── audio_extraction.py     # Step 2: video → 16 kHz mono WAV (FFmpeg)
+│   ├── transcription.py        # Step 3: speech → text (Whisper)
+│   ├── translation.py          # Step 4: text → target language (Google Translate)
+│   ├── speech_synthesis.py     # Step 5: text → speech, time-matched to the original (gTTS + FFmpeg)
+│   ├── video_merging.py        # Step 6: new speech + original video → final MP4 (FFmpeg)
+│   └── media.py                # Shared FFmpeg / FFprobe helpers
+│
+├── ui/                         # Look and feel of the page
+│   ├── components.py           # HTML building blocks (navbar, step cards, progress tracker…)
+│   └── styles.css              # All page styling
+│
+├── requirements.txt            # Python dependencies
+├── packages.txt                # System packages for Streamlit Cloud (FFmpeg)
+├── .devcontainer/              # GitHub Codespaces setup
+└── workspace/                  # Created at runtime: one folder per uploaded video (git-ignored)
 ```
 
 ---

@@ -1,17 +1,5 @@
-# Audio / Video
-*.wav
-*.mp3
-*.mp4
-
-# Generated folders
-extracted_audio/
-generated_audio/
-output_videos/
-transcripts/
-translated_text/
-
-# Inputs (keep folder, not files)
-input_videos/*.mp4
+# Files created while the app runs
+workspace/
 
 # Python
 __pycache__/
