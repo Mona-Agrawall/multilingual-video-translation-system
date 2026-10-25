@@ -1,102 +1,109 @@
-<div align="center">
+# Multilingual Video Translation System
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:050d14,30:0d1a2e,70:0a1f3a,100:050d14&height=200&section=header&text=🎬%20Multilingual%20Video%20Translation&fontSize=32&fontColor=58a6ff&fontAlignY=40&desc=AI-Powered%20Video%20Translation%20with%20Audio-Video%20Sync&descAlignY=60&descColor=8b949e&animation=fadeIn" />
+A Streamlit application that translates the spoken language of a video into another language. It transcribes the original speech, translates it, generates new speech, fits that speech to the original duration, and replaces the video's soundtrack.
 
-<br>
+Supported target languages: Hindi, French, Spanish, German, Tamil. The source language is detected automatically.
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
-![Whisper](https://img.shields.io/badge/OpenAI%20Whisper-412991?style=for-the-badge&logo=openai&logoColor=white)
-![FFmpeg](https://img.shields.io/badge/FFmpeg-007808?style=for-the-badge&logo=ffmpeg&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-58a6ff?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active-00e5ff?style=for-the-badge)
+## Architecture
 
-<br>
+```mermaid
+flowchart LR
+    User([User])
 
-> An AI-powered pipeline that translates spoken content in any video into another language —  
-> while keeping the audio and video in perfect sync.
+    subgraph UI["Presentation layer"]
+        App["app.py<br/>Streamlit app, step flow, session state"]
+        Comp["ui/components.py<br/>ui/styles.css"]
+    end
 
-<br>
+    subgraph Pipeline["pipeline/"]
+        direction TB
+        A["audio_extraction.py<br/>extract_audio()"]
+        T["transcription.py<br/>transcribe_audio()"]
+        L["translation.py<br/>translate_text()"]
+        S["speech_synthesis.py<br/>synthesize_speech()"]
+        M["video_merging.py<br/>merge_audio_into_video()"]
+        H["media.py<br/>run_ffmpeg(), get_duration()"]
+    end
 
-**[🚀 Live Demo](#)** &nbsp;·&nbsp; **[🐛 Report a Bug](https://github.com/Mona-Agrawall/multilingual-video-translation-system/issues)** &nbsp;·&nbsp; **[✨ Request Feature](https://github.com/Mona-Agrawall/multilingual-video-translation-system/issues)**
+    subgraph External["External tools and services"]
+        FF["FFmpeg / FFprobe"]
+        W["OpenAI Whisper<br/>base model, local"]
+        GT["Google Translate<br/>via deep-translator"]
+        TTS["Google Text-to-Speech<br/>via gTTS"]
+    end
 
-</div>
+    WS[("workspace/#lt;uuid#gt;/<br/>per-upload files")]
 
-
----
-
-## 🧠 How It Works
-
+    User -- "upload MP4, choose language" --> App
+    App -- "download MP4" --> User
+    App --> Comp
+    App --> A & T & L & S & M
+    A & S & M --> H --> FF
+    T --> W
+    L --> GT
+    S --> TTS
+    App <--> WS
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│  MP4 Video  │ →  │ Extract     │ →  │ Speech →    │ →  │  Translate  │ →  │ TTS + Sync  │ →  │   Output    │
-│   Upload    │    │   Audio     │    │   Text      │    │    Text     │    │    Audio    │    │    Video    │
-│             │    │  (FFmpeg)   │    │  (Whisper)  │    │  (Google)   │    │   (gTTS)    │    │  (FFmpeg)   │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+
+### Processing pipeline
+
+```mermaid
+flowchart LR
+    V["input.mp4"] -->|"1. Extract audio<br/>FFmpeg"| WAV["audio.wav<br/>16 kHz mono"]
+    WAV -->|"2. Transcribe<br/>Whisper"| TXT["Transcript"]
+    TXT -->|"3. Translate<br/>Google Translate"| TR["Translated text"]
+    TR -->|"4. Synthesize<br/>gTTS"| MP3["speech.mp3"]
+    MP3 -->|"5. Time-stretch<br/>FFmpeg atempo"| SW["speech.wav<br/>same length as audio.wav"]
+    SW -->|"6. Merge<br/>FFmpeg"| OUT["translated_video.mp4"]
+    V -->|"video stream, copied unchanged"| OUT
 ```
 
-The pipeline works in 6 automated stages:
+| Step | Module | What it does |
+|---|---|---|
+| Upload | `app.py` | Saves the MP4 to a new `workspace/<uuid>/` folder so separate runs never overwrite each other. |
+| Extract audio | `pipeline/audio_extraction.py` | Converts the soundtrack to a 16 kHz mono WAV, the format Whisper expects. |
+| Transcribe | `pipeline/transcription.py` | Runs the Whisper `base` model locally and returns the transcript. |
+| Translate | `pipeline/translation.py` | Translates with Google Translate (source auto-detected). Text is split into 4,500-character chunks to stay under the service's 5,000-character limit. |
+| Synthesize | `pipeline/speech_synthesis.py` | Generates speech with gTTS, then speeds it up or slows it down with FFmpeg's `atempo` filter so it matches the original audio length. Filters are chained for factors outside atempo's 0.5 to 2.0 range. |
+| Merge | `pipeline/video_merging.py` | Replaces the audio track with the new speech (AAC), copying the video stream without re-encoding. |
 
-1. **Extract** — Pull raw audio from the uploaded video using FFmpeg
-2. **Transcribe** — Convert speech to text using OpenAI Whisper
-3. **Translate** — Translate the transcript using Google Translate API
-4. **Synthesize** — Generate natural-sounding speech from translated text via gTTS
-5. **Synchronize** — Time-stretch the generated audio to match original duration using FFmpeg
-6. **Merge** — Combine the translated audio track back into the original video
+The UI runs these as six gated steps: each step's button appears only after the previous step finishes, and its output (audio, transcript, translation, speech, final video) is shown for review before continuing.
 
----
+## Tech stack
 
-## ✨ Features
-
-| Feature | Description |
+| Component | Technology |
 |---|---|
-| 🎙️ **Speech-to-Text** | Accurate transcription using OpenAI Whisper across 99+ languages |
-| 🌍 **Multi-language Translation** | Powered by Google Translate API for broad language support |
-| 🔊 **Text-to-Speech** | Natural audio generation from translated text using gTTS |
-| ⏱️ **Audio-Video Sync** | FFmpeg time-stretching ensures translated audio matches original timing |
-| 🖥️ **Simple Web UI** | Clean Streamlit interface — upload, translate, download |
-| 📁 **Auto Output** | Each upload gets its own folder in `workspace/` with every intermediate file and the final video |
+| Language | Python |
+| Web interface | Streamlit |
+| Speech recognition | OpenAI Whisper (`base` model) |
+| Translation | Google Translate via `deep-translator` |
+| Speech synthesis | gTTS |
+| Audio and video processing | FFmpeg, FFprobe |
 
----
-
-## 🛠️ Tech Stack
-
-```yaml
-Language    : Python 3.x
-UI          : Streamlit
-Transcription : OpenAI Whisper
-Translation : Google Translate API
-TTS         : gTTS (Google Text-to-Speech)
-Audio/Video : FFmpeg
-Output      : MP4 (workspace/)
-```
-
----
-
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Python 3.8+
-- FFmpeg installed and added to system PATH
+- Python 3.9 or newer
+- FFmpeg (includes FFprobe) available on the system `PATH`
+- Internet access for translation and speech synthesis, and to download the Whisper model (about 140 MB) on first use
+
+Install FFmpeg:
+
+| OS | Command |
+|---|---|
+| Windows | Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add the `bin` folder to `PATH` |
+| macOS | `brew install ffmpeg` |
+| Debian / Ubuntu | `sudo apt install ffmpeg` |
+
+Check the installation with `ffmpeg -version`.
 
 ### Installation
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Mona-Agrawall/multilingual-video-translation-system.git
 cd multilingual-video-translation-system
-
-# 2. Install Python dependencies
 pip install -r requirements.txt
-
-# 3. Install FFmpeg
-# Windows  → https://ffmpeg.org/download.html  (add to PATH)
-# macOS    → brew install ffmpeg
-# Linux    → sudo apt install ffmpeg
-
-# 4. Verify FFmpeg
-ffmpeg -version
 ```
 
 ### Run
@@ -105,118 +112,74 @@ ffmpeg -version
 streamlit run app.py
 ```
 
-Then open your browser at:
+Open `http://localhost:8501`, upload an MP4 (up to 200 MB), and follow the steps. The final video can be downloaded from the last step.
+
+### GitHub Codespaces
+
+The repository includes a dev container (`.devcontainer/`, Python 3.11). Opening it in Codespaces installs FFmpeg from `packages.txt` and the Python dependencies, then starts the app on port 8501.
+
+## Project structure
 
 ```
-http://localhost:8501
+.
+├── app.py                    Streamlit entry point: layout, step flow, session state
+├── pipeline/                 Translation pipeline, one module per step
+│   ├── audio_extraction.py   Video to 16 kHz mono WAV
+│   ├── transcription.py      Speech to text (Whisper)
+│   ├── translation.py        Text to target language (Google Translate)
+│   ├── speech_synthesis.py   Text to speech, duration-matched (gTTS, FFmpeg)
+│   ├── video_merging.py      New audio and original video to MP4 (FFmpeg)
+│   └── media.py              Shared FFmpeg and FFprobe helpers
+├── ui/
+│   ├── components.py         HTML components (navbar, step cards, progress tracker)
+│   └── styles.css            Page styling
+├── requirements.txt          Python dependencies
+├── packages.txt              System packages for Streamlit Cloud and Codespaces (FFmpeg)
+└── .devcontainer/            GitHub Codespaces configuration
 ```
 
----
+At runtime the app creates `workspace/<uuid>/` for each upload (ignored by git):
 
-## 📂 Project Structure
+| File | Contents |
+|---|---|
+| `input.mp4` | Uploaded video |
+| `audio.wav` | Extracted audio |
+| `speech.mp3` | Raw gTTS output |
+| `speech.wav` | Speech stretched to the original duration |
+| `translated_video.mp4` | Final output |
 
-```
-multilingual-video-translation-system/
-│
-├── app.py                      # Streamlit entry point: page layout and step-by-step flow
-│
-├── pipeline/                   # The translation pipeline, one module per step
-│   ├── audio_extraction.py     # Step 2: video → 16 kHz mono WAV (FFmpeg)
-│   ├── transcription.py        # Step 3: speech → text (Whisper)
-│   ├── translation.py          # Step 4: text → target language (Google Translate)
-│   ├── speech_synthesis.py     # Step 5: text → speech, time-matched to the original (gTTS + FFmpeg)
-│   ├── video_merging.py        # Step 6: new speech + original video → final MP4 (FFmpeg)
-│   └── media.py                # Shared FFmpeg / FFprobe helpers
-│
-├── ui/                         # Look and feel of the page
-│   ├── components.py           # HTML building blocks (navbar, step cards, progress tracker…)
-│   └── styles.css              # All page styling
-│
-├── requirements.txt            # Python dependencies
-├── packages.txt                # System packages for Streamlit Cloud (FFmpeg)
-├── .devcontainer/              # GitHub Codespaces setup
-└── workspace/                  # Created at runtime: one folder per uploaded video (git-ignored)
+Workspace folders are not deleted automatically.
+
+## Adding a language
+
+Add an entry to the `LANGUAGES` dictionary in `app.py`. The code must be supported by both Google Translate and gTTS:
+
+```python
+LANGUAGES = {
+    ...
+    "Japanese": "ja",
+}
 ```
 
----
+## Limitations
 
-## 🎯 Use Cases
+- Timing is matched for the whole clip, not per sentence. The translated speech starts and ends with the original audio, but individual sentences do not line up with on-screen lip movement.
+- The output uses a single synthetic gTTS voice; the original speaker's voice, background music and sound effects are replaced.
+- Large differences in speech length produce noticeably fast or slow audio.
+- Only MP4 input is accepted.
 
-- 🎓 **Education** — Translate lecture videos for international students
-- 🌐 **Content Localization** — Dub YouTube or marketing videos into multiple languages
-- 🗣️ **Speech Dubbing** — Prototype voice-over workflows for films or podcasts
-- ♿ **Accessibility** — Make video content available in a viewer's native language
+## Screenshots
 
----
+<p align="center">
+  <img width="700" alt="Application screenshot 1" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" />
+</p>
+<p align="center">
+  <img width="700" alt="Application screenshot 2" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c" />
+</p>
+<p align="center">
+  <img width="700" alt="Application screenshot 3" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" />
+</p>
 
-## 🔮 Future Enhancements
+## Author
 
-- [ ] **Speaker diarization** — Preserve individual speaker voices in translation
-- [ ] **Subtitle generation** — Export `.srt` / `.vtt` subtitle files alongside video
-- [ ] **Batch processing** — Translate multiple videos in one run
-- [ ] **Voice cloning** — Match the original speaker's voice style in the output
-- [ ] **Language auto-detection** — Automatically detect source language
-- [ ] **Progress bar** — Real-time pipeline progress in the Streamlit UI
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-```bash
-# 1. Fork the repository
-# 2. Create your feature branch
-git checkout -b feature/your-feature-name
-
-# 3. Commit your changes
-git commit -m "feat: describe your change"
-
-# 4. Push and open a Pull Request
-git push origin feature/your-feature-name
-```
-
----
-
-## 👩‍💻 Author
-
-<div align="center">
-
-**Mona Agrawal**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Mona--Agrawall-181717?style=for-the-badge&logo=github)](https://github.com/Mona-Agrawall)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-mona--agrawal-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/mona-agrawal-/)
-
-</div>
-
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-  
-<img width="1053" height="1191" alt="image" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" style="border-radius:10px; margin-bottom:12px;" />
-<br>
-<img width="898" height="1199" alt="image" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c"  style="border-radius:10px; margin-bottom:12px;"/>
-<br>
-<img width="939" height="1199" alt="image" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" style="border-radius:10px;"/>
-
-</div>
-
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-<div align="center">
-
-*If you found this project useful, consider giving it a ⭐ — it means a lot!*
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:050d14,30:0d1a2e,70:0a1f3a,100:050d14&height=100&section=footer&animation=fadeIn" />
-
-</div>
+Mona Agrawal - [GitHub](https://github.com/Mona-Agrawall) · [LinkedIn](https://www.linkedin.com/in/mona-agrawal-/)
