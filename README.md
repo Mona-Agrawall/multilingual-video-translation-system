@@ -168,18 +168,6 @@ LANGUAGES = {
 - Large differences in speech length produce noticeably fast or slow audio.
 - Only MP4 input is accepted.
 
-## Screenshots
-
-<p align="center">
-  <img width="700" alt="Application screenshot 1" src="https://github.com/user-attachments/assets/d2489c2d-495a-4264-841f-2f00f0c2fe37" />
-</p>
-<p align="center">
-  <img width="700" alt="Application screenshot 2" src="https://github.com/user-attachments/assets/2bffc882-f426-4500-b3a5-4883666b054c" />
-</p>
-<p align="center">
-  <img width="700" alt="Application screenshot 3" src="https://github.com/user-attachments/assets/88921f2c-c725-4d47-a6f0-fdd7194a6501" />
-</p>
-
 ## Author
 
 Mona Agrawal - [GitHub](https://github.com/Mona-Agrawall) · [LinkedIn](https://www.linkedin.com/in/mona-agrawal-/)
